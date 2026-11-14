@@ -1,0 +1,39 @@
+### Create product (expected 201)
+POST http://localhost:8081/products
+Content-Type: application/json
+
+{
+  "name": "Laptop Dell Inspiron",
+  "description": "Laptop phuc vu hoc tap",
+  "price": 18500000.00,
+  "quantity": 10
+}
+
+### List products (expected 200)
+GET http://localhost:8081/products
+
+### Get one product (replace 1 with returned ID)
+GET http://localhost:8081/products/1
+
+### Update product (expected 200)
+PUT http://localhost:8081/products/1
+Content-Type: application/json
+
+{
+  "name": "Laptop Dell Inspiron 15",
+  "description": "Da nang cap RAM",
+  "price": 19500000.00,
+  "quantity": 7
+}
+
+### Delete product (expected 204)
+DELETE http://localhost:8081/products/1
+
+### Validation (expected 400)
+POST http://localhost:8081/products
+Content-Type: application/json
+
+{"name":"","price":-100,"quantity":-1}
+
+### Not found (expected 404)
+GET http://localhost:8081/products/999999

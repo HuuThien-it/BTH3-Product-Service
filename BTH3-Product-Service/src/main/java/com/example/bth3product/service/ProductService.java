@@ -1,54 +1,53 @@
 package com.example.bth3product.service;
 
 import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
+import com.example.bth3product.dto.ProductRequest;
+import com.example.bth3product.dto.ProductResponse;
 import com.example.bth3product.entity.Product;
+import com.example.bth3product.exception.ProductNotFoundException;
 import com.example.bth3product.repository.ProductRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class ProductService {
+    private final ProductRepository repository;
 
-    private final ProductRepository productRepository;
-
-    public ProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
+    public ProductService(ProductRepository repository) {
+        this.repository = repository;
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductResponse> findAll() {
+        return repository.findAll().stream().map(ProductResponse::from).toList();
     }
 
-    public Product getProductById(Integer id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Product not found with id: " + id));
+    public ProductResponse findById(Long id) {
+        return ProductResponse.from(getExisting(id));
     }
 
-    public Product createProduct(Product product) {
-        product.setId(null);
-        product.setCreatedAt(null);
-        product.setUpdatedAt(null);
-        return productRepository.save(product);
+    @Transactional
+    public ProductResponse create(ProductRequest request) {
+        Product product = new Product(
+                request.name(), request.description(), request.price(), request.quantity()
+        );
+        return ProductResponse.from(repository.saveAndFlush(product));
     }
 
-    public Product updateProduct(Integer id, Product request) {
-        Product product = getProductById(id);
-
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setQuantity(request.getQuantity());
-
-        return productRepository.save(product);
+    @Transactional
+    public ProductResponse update(Long id, ProductRequest request) {
+        Product product = getExisting(id);
+        product.update(request.name(), request.description(), request.price(), request.quantity());
+        return ProductResponse.from(repository.saveAndFlush(product));
     }
 
-    public void deleteProduct(Integer id) {
-        Product product = getProductById(id);
-        productRepository.delete(product);
+    @Transactional
+    public void delete(Long id) {
+        Product product = getExisting(id);
+        repository.delete(product);
+    }
+
+    private Product getExisting(Long id) {
+        return repository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
     }
 }

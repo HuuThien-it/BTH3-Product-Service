@@ -1,16 +1,18 @@
-CREATE DATABASE BTH3_PRODUCT;
-GO
+-- Run once in MySQL Workbench (or use the Docker Compose configuration).
+CREATE DATABASE IF NOT EXISTS BTH3_PRODUCT
+    CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE BTH3_PRODUCT;
-GO
 
-CREATE TABLE products (
-    id INT IDENTITY(1,1) PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS products (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    description VARCHAR(MAX) NULL,
-    price DECIMAL(10,2) NOT NULL,
+    description VARCHAR(2000) NULL,
+    price DECIMAL(15, 2) NOT NULL,
     quantity INT NOT NULL,
-    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
-    updated_at DATETIME2 NOT NULL DEFAULT SYSDATETIME()
+    created_at DATETIME(6) NOT NULL,
+    updated_at DATETIME(6) NOT NULL
 );
-GO
+
+-- To verify:
+-- SELECT * FROM BTH3_PRODUCT.products;
